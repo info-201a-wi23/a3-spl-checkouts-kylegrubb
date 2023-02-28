@@ -5,82 +5,101 @@ output: html_document
 
 ### Introduction
 
-An introduction of the data and a description of the trends/books/items you are choosing to analyze (and why!)
+I am not a big reader so I wanted to familiarize myself with some things I would have possibly checked out form the library as a kid: The Harry Potter Series and audio books. Along with those two observations, as a business major I was interested in how large publishing companies have cornered the market, so I did research into what share of the market those companies hold.
 
 ### Summary Information
+I think the most interesting values I calculated for this project are regarding the checkout rate of Audio books over the last 10 years. In 2013 Audio books accounted for 5.4% of the amount of paper books checked out by library patrons. In 2023 that percentage has jumped up to 72.7%.
 
-Write a summary paragraph of findings that includes the 5 values calculated from your summary information R script
+Harry Potter books have a less correlated pattern over the data set period. That change in number of checkouts could come down to a variety of factors but at the series' peak in 2020 there were nearly 22500 checkouts of Harry Potter material compared with less than 7500 checkouts in 2005, a difference of about 15000 checkouts.
 
-These will likely be calculated using your DPLYR skills, answering questions such as:
+Lastly, I used a pie chart to display the amount of checkouts by the top 10 largest publishers in the library. Collectively those 10 publishers make up about 16% of the library's checkouts.
 
-- What is the average number of checkouts for each item?
-- What is the month or year with the most/least checkouts for a book that you're interested in?
-- What is the month or year with the most/least checkouts for ebooks?
-- How has the number of print book checkouts changed over time?
 
-Feel free to calculate and report values that you find relevant.
+
+
+
+
 
 ### The Dataset
 
-- Who collected/published the data?  
-- What are the parameters of the data (dates, number of checkouts, kinds of books, etc.)?
-- How was the data collected or generated?  
-- Why was the data collected?  
-- What, if any, ethical questions do you need to consider when working with this data?  
-- What are possible limitations or problems with this data?   (at least 200 words)
+This data set was collected collaboratively by the Seattle Public Library and the artist George Legrady who collected the data as a coincidence to use in one of his works where he wanted to display different trends in the types of material library patrons were checking out. When the SPL stitched their data together they published it for public use. The observations within the data include if the material is physical or digital, the type of checkout(), a more specific material type, checkout year, checkout month, title of the piece, International Standard Book Number (ISBN): a numeric commercial book identifier, the material's creator, subject, publisher, and year it was published. The data was collected by George Legrady and SPL. I do not think there are ethical issues with this data. Seattle has a history of trying to make government entities more ethical than other big cities, and a library is a branch of public resource government that has few possible ethical issues. The biggest limitation with this data was its size. 9 gigabytes is enormous and working with that has been a struggle for my computer.
+
+
+
 
 
 ### First Trends Over Time Chart
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
-
-The first chart that you will create and include will show the trend over time of your variable/topic/interest. Think carefully about what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
-
-- Show more than one, but fewer than ~10 trends
-  - For example, two books, or 5 different mediums
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- You need a legend for your different line colors and a clear - legend title
-In your .Rmd file, make sure to describe why you included the chart, and what patterns emerged
-
-When we say "clear" or "human readable" titles and labels, that means that you should not just display the variable name.
+This chart illustrates how the amount of checkouts for audiobooks has drastically increased over the data set time period. As you can see, in 2005 the number of audiobook checkouts is minuscule in comparison to the amount of book checkouts that year. However with the proliferation of technology through the years, and a younger generation being less interested in reading, audiobooks have become 72.7% as popular as books in 2023 adjusted for a 12 month year.
 
 Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, warning = FALSE, code = readLines("chart1_example.R")}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(scales)
+library(RColorBrewer)
+df <- read.csv("Checkouts_by_Title.csv", stringsAsFactors = F)
+newdf1 <- df %>% filter (MaterialType == c("AUDIOBOOK", "BOOK"))
+refined1<- newdf1 %>% group_by(MaterialType, CheckoutYear)  %>% summarise(Checkouts = sum(Checkouts))
+refined1$Checkouts[38] <- refined1$Checkouts[38] * 12
+refined1$Checkouts[19] <- refined1$Checkouts[19] * 12
+ratio1 <- refined1$Checkouts[9]/refined1$Checkouts[28]
+ratio2 <- refined1$Checkouts[19]/refined1$Checkouts[38]
+options(scipen = 999)
+ggplot(refined1, aes(fill=MaterialType, y=Checkouts, x=CheckoutYear))+ 
+         geom_bar(position="stack", stat="identity") + ggtitle("Number of Books and Audiobooks checked out since 2005") + ylab("Number of Checkouts") + xlab("Checkout Year") + scale_fill_brewer(palette = "Dark2")
 ```
 
 ### Second Trends Over Time Chart
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
 
-The second chart that you will create and include will show another trend over time of your variable/topic/interest. Think carefully about what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
 
-- Show more than one, but fewer than ~10 trends
-  - For example, two books, or 5 different mediums
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- You need a legend for your different line colors and a clear - legend title
-In your .Rmd file, make sure to describe why you included the chart, and what patterns emerged
+The next chart I made illistrates how much "Harry Potter" series media has been checked out since 2005. As you can see the peak amount of checkouts occurs in 2020. This is probably a result of general pandemic boredom forcing people who don't normally read to pick up a book, and what else would they go to but the most popular book series of the 21st century. The lowest number of checkouts was observed in 2005. This could be a consequence of the series not being finished in combination with the movie series not being released yet.
 
-When we say "clear" or "human readable" titles and labels, that means that you should not just display the variable name.
 
-Here's an example of how to run an R script inside an RMarkdown file:
+```{r, echo = FALSE, warning=FALSE, message= FALSE, code = readLines("chart2_example.R")} 
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(scales)
+library(RColorBrewer)
+df <- read.csv("Checkouts_by_Title.csv", stringsAsFactors = F)
+newdf <- df %>% filter (str_detect(Title, "Harry Potter"))
+refined <- newdf %>% group_by(CheckoutYear) %>% summarise(Checkouts = sum(Checkouts))
 
-``````{r, echo = FALSE, code = readLines("chart2_example.R")}
+refined$Checkouts[19] <- refined$Checkouts[19]*12
+
+ggplot(data=refined, aes(x=CheckoutYear, y=Checkouts, group=1)) +
+  geom_line()+
+  geom_point() + ggtitle("Checkouts of Harry Potter material since 2005") + xlab("Checkout Year") 
 ```
 
 ### Your Choice
 
-The last chart is up to you. It could be a line plot, scatter plot, histogram, bar plot, stacked bar plot, and more. Here are some requirements to help guide your design:
 
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- You need a legend for your different line colors and a clear legend title
+```{r, echo = FALSE, message = FALSE, warning = FALSE, code = readLines("chartadditional.R")}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(scales)
+library(RColorBrewer)
+df <- read.csv("Checkouts_by_Title.csv", stringsAsFactors = F)
+refined5 <- df %>% group_by(Publisher) %>% summarise(sum(Checkouts))
+refined5 <- refined5[order(-refined5[2]),]
+num <- sum(refined5$`sum(Checkouts)`)
+refined6 <- refined5[-1,]
+refined7 <- head(refined6,10)
+ratio3 <-  sum(refined7[2])
+ratio3 <- ratio3/num
+options(scipen = 999)
+colnames(refined7)[2] <- "Checkouts"
+ggplot(refined7, aes(x="", y=Checkouts, fill=Publisher)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) + theme_void() +labs(title = "Checkouts of 10 Largest 10 Publishers at SPL", subtitle = "Representation of the 10 largest publishers at SPL, making up 16% of checkouts.")
 
-Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, code = readLines("chart2_example.R")}
 ```
 
-
+Lastly, I analyzed the amount of checkouts by the top 10 largest publishers in the library. The amount of checkouts of by those 10 publishers combined makes up 16% of the libraries checkouts. Obviously to command such a large share of the checkouts those companies must have engaged in aggressive mergers and other capitalist practices to become giant firms that hold an pseudo-oligopoly.
